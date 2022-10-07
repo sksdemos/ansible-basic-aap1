@@ -1,0 +1,119 @@
+####################################################################################################
+# The cloudinit-config.yml is overriding variables in the defaults/main.yml of the cloud-init role #
+####################################################################################################
+
+# Allows for a VM to be created again if already available on the hypervisor
+vm_recreate: true
+
+# Local directory that holds cloud images required by the role.
+cloud_images_dir: 'cloud_images'
+
+# Default directory where cloud images are copied and VM creation based on cloud image is done (should match to a storage on host)
+cloud_storage_path: /var/lib/libvirt/images/aap1
+
+# Libvirt network for cloud VMs
+cloud_network: aap1-net
+
+# Centos7.9 Cloud image -->https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-2009.qcow2
+# Centos8.4 Cloud image --> https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-GenericCloud-8.4.2105-20210603.0.x86_64.qcow2
+# Centos8 Stream Cloud image --> https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+
+
+# VM creation based on cloud images using cloud-init
+cloud_vms_info:
+  'utility':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: utility
+    vm_fqdn: utility.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 2048
+    vm_cpu: 1
+    vm_root_disk_size: 50G
+    vm_static_ip: 10.30.0.10
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns_search_domain: 'example.com'
+    vm_dns1: 10.30.0.1
+    vm_nm_controlled_network: 'yes'
+  'servera':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: servera
+    vm_fqdn: servera.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 1024
+    vm_cpu: 1
+    vm_root_disk_size: 50G
+    vm_static_ip: 10.30.0.11
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns_search_domain: 'example.com'
+    vm_dns1: 10.30.0.10
+    vm_nm_controlled_network: 'yes'
+  'serverb':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: serverb
+    vm_fqdn: serverb.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 1024
+    vm_cpu: 1
+    vm_root_disk_size: 50G
+    vm_static_ip: 10.30.0.12
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns_search_domain: 'example.com'
+    vm_dns1: 10.30.0.10
+    vm_nm_controlled_network: 'yes'
+  'serverc':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: serverc
+    vm_fqdn: serverc.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 1024
+    vm_cpu: 1
+    vm_root_disk_size: 50G
+    vm_static_ip: 10.30.0.13
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns1: 10.30.0.10
+    vm_dns_search_domain: 'example.com'
+    vm_nm_controlled_network: 'yes'
+  'serverd':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: serverd
+    vm_fqdn: serverd.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 1024
+    vm_cpu: 1
+    vm_root_disk_size: 50G
+    vm_static_ip: 10.30.0.14
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns_search_domain: 'example.com'
+    vm_dns1: 10.30.0.10
+    vm_nm_controlled_network: 'yes'
+  'workstation':
+    vm_image_link: https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-20220125.1.x86_64.qcow2
+    vm_local_hostname: workstation
+    vm_fqdn: workstation.example.com
+    vm_root_passwd: letmein
+    vm_os_type: linux
+    vm_os_variant: rhel8.0
+    vm_memory: 4096
+    vm_cpu: 2
+    vm_root_disk_size: 100G
+    vm_static_ip: 10.30.0.15
+    vm_netmask: 255.0.0.0
+    vm_gateway: 10.30.0.1
+    vm_dns_search_domain: 'example.com'
+    vm_dns1: 10.30.0.10
+    vm_nm_controlled_network: 'yes'

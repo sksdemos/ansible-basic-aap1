@@ -1,0 +1,58 @@
+---
+# This Playbook creates an in-memory inventory used in the susequent play
+#
+# ASSUMPTIONS:
+# Will make use of sudo password in the configs/password.yml in clear text
+#
+
+- name: Creating in-memory inventory
+  hosts: localhost
+  become: no
+  vars_files:
+    - 'configs/password.yml'
+    - 'configs/cloudinit-config.yml'
+
+  tasks:
+    - name: Adding hosts and groups to the inventory
+      add_host:
+        name: '{{ cloud_vms_info.utility.vm_static_ip }}'
+        groups: utility
+
+
+
+# This Playbook sets up a DNS using bind9 on the Utility machine
+#
+# ASSUMPTIONS:
+# The Utility VM is setup with Ansible access
+# The DNS server is created to resolve all local DNS names
+# Forwards the request to the libvirt DNS on 10.30.0.1 for requests other than local
+#
+# NOTE: Setup a basic DNS for VMs to reach out to each other and access the public internet
+#
+
+
+- name: Creating DNS on the utility machine
+  hosts: utility
+  gather_facts: yes
+  vars_files:
+#    - 'configs/cloudinit-config.yml'
+    - 'configs/dns-config.yml'
+  tasks:
+    - name: Setting up DNS
+      include_role:
+        name: bind
+
+    - name: Update DNS on helper VM
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regex: "^DNS1=10.30.0.1"
+        line: "DNS1=10.30.0.10"
+        state: present
+
+    - name: Reloading connection
+      command: 'nmcli con reload'
+      changed_when: false
+
+    - name: Applying configuration
+      command: "nmcli con up 'System eth0'"
+      changed_when: false

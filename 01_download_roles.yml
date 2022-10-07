@@ -1,0 +1,18 @@
+- name: Downloads roles for infra
+  hosts: localhost
+  gather_facts: no
+  become: no
+  tasks:
+    - name: Creating roles folder
+      file:
+        path: roles
+        state: directory
+
+    - name: Cloning repositories
+      git:
+        repo: '{{ item.0 }}'
+        dest: '{{ item.1 }}'
+      loop:
+        -  [https://github.com/sksdemos/libvirt_setup, roles/libvirt_setup]
+        -  [https://github.com/sksdemos/cloud_init, roles/cloud_init]
+        -  [https://github.com/sksdemos/bind, roles/bind]

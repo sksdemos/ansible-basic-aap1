@@ -1,0 +1,14 @@
+
+# libvirt storage pool and networking configuration and settings
+libvirt:
+  storage:
+    pool_name: ansible-store
+    pool_path: /var/lib/libvirt/images/aap1
+  network:
+    network_dhcp: true
+    network_name: aap1-net
+    network_gateway: 10.30.0.1
+    network_bridge: br0-aap1
+    network_mask: 255.0.0.0
+    network_dhcp_start: 10.30.0.51           # DHCP start range to be assigned to the VMs. Leaving room for static IPs
+    network_dhcp_end: 10.30.0.254

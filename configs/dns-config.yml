@@ -1,0 +1,51 @@
+forward_zones:
+  example.com:
+    dns_hostname: 'ns1'
+    dns_host_ip: '10.30.0.10'
+    soa_hostname: 'ns1.' 
+    soa_postmaster: 'root.'
+    mail_server: False
+    zone_file: 'db-for.example.com'
+    zone_serial: '1'
+    zone_refresh: '1D'
+    zone_retry: '1H'
+    zone_expire: '1W'
+    zone_minimum: '3H'
+    zone_records:
+      - 'utility IN A 10.30.0.10'
+      - 'servera IN A 10.30.0.11'
+      - 'serverb IN A 10.30.0.12'
+      - 'serverc IN A 10.30.0.13'
+      - 'serverd IN A 10.30.0.14'
+      - 'workstation IN A 10.30.0.15'
+
+
+reverse_zones:
+  0.30.10.in-addr.arpa:
+    dns_hostname: 'ns1'                            
+    dns_domain: 'example.com'
+    dns_host_octet: 10
+    soa_hostname: 'ns1.'
+    soa_postmaster: 'root.'
+    mail_server: False
+    zone_file: 'db-rev.example.com'
+    zone_serial: '1'
+    zone_refresh: '1D'
+    zone_retry: '1H'
+    zone_expire: '1W'
+    zone_minimum: '3H'
+    zone_records:
+      - '10 IN PTR utility.example.com'
+      - '11 IN PTR servera.example.com'
+      - '12 IN PTR serverb.example.com'
+      - '13 IN PTR serverc.example.com'
+      - '14 IN PTR serverd.example.com'
+      - '15 IN PTR workstation.example.com'
+
+
+# Variables used in named.conf
+dns_query_subnet: 'any;'
+dns_server_ip: 'any;'
+dns_forwarders: True  
+dns_forwarders_ip: '10.30.0.1;'
+

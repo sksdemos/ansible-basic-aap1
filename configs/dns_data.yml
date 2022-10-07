@@ -1,0 +1,23 @@
+# Variables for zone files
+dns_domain: example.com
+dns_server_hostname: "ns1"              # DNS hostname of the name server
+dns_host_ip: "10.30.0.10"               # IP address of the DNS server.
+dns_soa_hostname: "ns1."                # Should be a host name. Do add a . at the end. If not required just put ""
+dns_soa_postmaster: "root."             # email id name for dns administrator i.e. admin,root etc. Do add a . at the end   
+dns_mail_server: no                     # yes will add an MX record
+dns_zone_serial: [1,1]
+dns_zone_refresh: [1D,1D]
+dns_zone_retry: [1H,1H]
+dns_zone_expire: [1W,1W]
+dns_zone_minimum: [3H,3H]
+fz_file_name: "db-for.example.com"
+rz_file_name: "db-rev.example.com"
+
+# Variables for named.conf
+dns_query_subnet: "any;"                # Subnet for DNS name resolution. Can be ; separated IPs like "10.0.0.0/8;"
+dns_server_ip: "any;"                   # IP address of DNS server. Can be a comma separated list of IP addresses
+dns_forwarders: yes                     # Is there a requirement of DNS forwarding
+dns_forwarders_ip: "10.30.0.1;"         # Comma separated list of IP addresses to forward for public internet DNS resolution
+
+# Assigning the cloud_init VMs dictionary
+vms_data: '{{ cloud_vms_info }}'

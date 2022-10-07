@@ -1,0 +1,45 @@
+forward_zones:
+  {{ dns_domain }}:
+    dns_hostname: '{{ dns_server_hostname }}'
+    dns_host_ip: '{{ dns_host_ip }}'
+    soa_hostname: '{{ dns_soa_hostname }}' 
+    soa_postmaster: '{{ dns_soa_postmaster }}'
+    mail_server: {{ dns_mail_server }}
+    zone_file: '{{ fz_file_name }}'
+    zone_serial: '{{ dns_zone_serial[0] }}'
+    zone_refresh: '{{ dns_zone_refresh[0] }}'
+    zone_retry: '{{ dns_zone_retry[0] }}'
+    zone_expire: '{{ dns_zone_expire[0] }}'
+    zone_minimum: '{{ dns_zone_minimum[0] }}'
+    zone_records:
+{% for record in vms_data | dict2items %}
+      - '{{record.key}} IN A {{record.value.vm_static_ip}}'
+{% endfor %}
+
+
+reverse_zones:
+  {{ dns_host_ip.split('.')[2] }}.{{ dns_host_ip.split('.')[1] }}.{{ dns_host_ip.split('.')[0] }}.in-addr.arpa:
+    dns_hostname: '{{ dns_server_hostname }}'                            
+    dns_domain: '{{ dns_domain }}'
+    dns_host_octet: {{ dns_host_ip.split('.')[3] }}
+    soa_hostname: '{{ dns_soa_hostname }}'
+    soa_postmaster: '{{ dns_soa_postmaster }}'
+    mail_server: {{ dns_mail_server }}
+    zone_file: '{{ rz_file_name }}'
+    zone_serial: '{{ dns_zone_serial[1] }}'
+    zone_refresh: '{{ dns_zone_refresh[1] }}'
+    zone_retry: '{{ dns_zone_retry[1] }}'
+    zone_expire: '{{ dns_zone_expire[1] }}'
+    zone_minimum: '{{ dns_zone_minimum[1] }}'
+    zone_records:
+{% for record in vms_data | dict2items %}
+      - '{{record.value.vm_static_ip.split('.')[3]}} IN PTR {{record.value.vm_fqdn}}'
+{% endfor %}
+
+
+# Variables used in named.conf
+dns_query_subnet: '{{ dns_query_subnet }}'
+dns_server_ip: '{{ dns_server_ip }}'
+dns_forwarders: {{ dns_forwarders }}  
+dns_forwarders_ip: '{{ dns_forwarders_ip }}'
+

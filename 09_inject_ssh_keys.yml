@@ -1,0 +1,112 @@
+---
+# This Playbook creates an in-memory inventory used in the susequent play
+#
+# ASSUMPTIONS:
+# Will make use of sudo password in the configs/password.yml in clear text
+#
+
+- name: Creating in-memory inventory
+  hosts: localhost
+  become: no
+  vars_files:
+    - 'configs/password.yml'
+    - 'configs/cloudinit-config.yml'
+    
+  vars:
+    ansible_become_password: "{{ sudo_password }}"
+
+  tasks:
+    - name: Adding hosts and groups to the inventory
+      add_host:
+        name: '{{ item.value.vm_static_ip }}'
+        groups: ansible_vms
+        ansible_user: root 
+        ansible_password: '{{ item.value.vm_root_passwd}}'
+      loop: "{{ lookup('dict',cloud_vms_info, wantlist=True) }}"
+      loop_control:
+        label: output
+
+
+# This Playbook injects SSH public key into all k8s VMs and readies them for Ansible access
+#
+# ASSUMPTIONS:
+# Requires prior libvirt network configuration to make this/these VM/s accessible from the host
+# This playbook creates a user ans sets the password on the designated VMs. Ansible will use SSH to connect to this user
+# These SSH user name and password can be changed in the configs/password.yml
+#
+# NOTE: This step is necessary for further ansible related provisioning on the designated VMs
+#
+
+- name: Readying all VMs for Ansible provisioning
+  hosts: ansible_vms
+  gather_facts: no
+  vars_files:
+    - 'configs/password.yml'
+
+  tasks:
+     # This deletion just takes care of man-in-the-middle ssh issues
+    - name: Removing known_hosts for current user
+      file:
+        path: "/home/{{ lookup('env', 'USER') }}/.ssh/known_hosts"
+        state: absent
+      delegate_to: localhost
+      become: no
+      run_once: yes
+
+    - name: Create remote user to manage servers
+      user:
+        name: "{{ ssh_user_name }}"
+        password: "{{ ssh_user_pwd | password_hash('sha512') }}"
+        update_password: on_create
+        state: present
+      #no_log: true
+
+    - name: Enable sudo access for the remote user
+      copy:
+        content: "{{ ssh_user_name }} ALL=(ALL) NOPASSWD: ALL\n"
+        dest: "/etc/sudoers.d/{{ ssh_user_name }}"
+        mode: '0644'
+
+    - name: Copy SSH public key from currently logged user to managed host
+      authorized_key:
+        user: "{{ ssh_user_name }}"
+        key: "{{ lookup('file', 'do-not-delete/ansible_vms_rsa.pub') }}"
+        state: present
+
+    - name: Check for an existing ansible.cfg
+      stat:
+        path: ansible.cfg
+      register: result
+      delegate_to: localhost
+      run_once: yes
+      become: no
+
+    - name: Delete old ansible.cfg if it exist
+      file:
+        path: ansible.cfg
+        state: absent
+      when: result.stat.exists
+      delegate_to: localhost
+      run_once: yes
+      become: no
+
+    - name: Creating a new ansible.cfg
+      copy:
+        content: |
+          [defaults]
+          inventory = inventory
+          host_key_checking = false
+          ask_pass = no
+          forks = 20
+          remote_user = {{ ssh_user_name }}
+          private_key_file = /home/{{ loggedin_user }}/ansible-basic/do-not-delete/ansible_vms_rsa
+
+          [privilege_escalation]
+          become = yes
+        dest: ansible.cfg
+        mode: '0644'
+      delegate_to: localhost
+      run_once: yes
+      become: no
+
+

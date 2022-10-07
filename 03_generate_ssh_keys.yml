@@ -1,0 +1,51 @@
+---
+# This Playbook creates an SSH keypair for Ansible to have key based access to VMs
+#
+# ASSUMPTIONS:
+# You are running this playbook as a user you are currently logged on
+# Your user account has sudo access and you have the sudo password
+# You are willing to store the sudo password in the configs/password.yml with or without vault encryption.
+#
+# NOTE: without the sudo password tasks up ahead may fail
+#
+
+
+- name: Generating open ssh keypair for the current user on the control node
+  hosts: localhost
+  become: no
+  gather_facts: no
+  vars_files:
+    - configs/password.yml
+  vars:
+    ansible_become_password: "{{ sudo_password }}"
+  tasks:
+
+    - name: Install sshpass package
+      yum:
+        name: sshpass
+        state: installed
+      become: yes
+
+    - name: Creating backup folder
+      file:
+         path: do-not-delete
+         state: directory
+         mode: '0775'
+
+    - name: Generating key pair for Ansible access
+      openssh_keypair:
+         path: "do-not-delete/ansible_vms_rsa"
+         owner: "{{ loggedin_user }}"
+         group: "{{ loggedin_user }}"
+         state: present
+
+    - name: Creating basic ansible.cfg
+      copy:
+         content: |
+           [defaults]
+           host_key_checking = false
+           inventory = inventory
+           forks = 20
+           private_key_file = /home/{{ loggedin_user }}/ansible-basic/do-not-delete/ansible_vms_rsa
+         dest: ansible.cfg
+         mode: '0644'

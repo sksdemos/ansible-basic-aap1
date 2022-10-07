@@ -1,0 +1,23 @@
+---
+# This Playbook generates forward_zones and reverse zones dictionary required by the bind role
+# This manually done be a tedious and an error prone process
+#
+# ASSUMPTIONS:
+# Utilizes configs/cloudinit_config.yml to read in the cloud_vms_info dictionary
+# configs/dns_data provides the bare minimum variables used by the Jinja2 template to generate the forward_zones and reverse_zones dictionary
+#
+
+- name: Creating in-memory inventory
+  hosts: localhost
+  become: no
+  gather_facts: no
+  vars_files:
+    - 'configs/cloudinit-config.yml'
+    - 'configs/dns_data.yml'
+
+  tasks:
+
+    - name: Generating DNS zone data
+      template:
+        src: templates/zones_gen.j2
+        dest: configs/dns-config.yml
